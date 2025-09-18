@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+    public function borrowings()
+    {
+        return $this->hasMany(\App\Models\Borrowing::class);
+    }
+    public function borrowedBooks()
+    {
+        return $this->belongsToMany(\App\Models\Book::class, 'borrowings')
+            ->withPivot(['borrowed_at', 'due_date', 'returned_at'])
+            ->withTimestamps();
+    }
 }
