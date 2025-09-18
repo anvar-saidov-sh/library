@@ -42,8 +42,18 @@ class Borrowing extends Model
 
     public function isOverdue(): bool
     {
-        return is_null($this->returned_at)
-            && $this->due_date
-            && $this->due_date->isPast();
+        if ($this->returned_at !== null) {
+            return false;
+        }
+
+        if (!$this->due_date) {
+            return false;
+        }
+
+        $due = $this->due_date instanceof Carbon
+            ? $this->due_date
+            : Carbon::parse($this->due_date);
+
+        return $due->isPast();
     }
 }
