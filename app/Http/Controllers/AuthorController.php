@@ -7,59 +7,65 @@ use Illuminate\Http\Request;
 
 class AuthorController extends Controller
 {
-    /**
-     * Display a listing of the resource.
+   /**
+     * Display a listing of authors.
      */
     public function index()
     {
-        //
+        // return paginated list
+        $authors = Author::paginate(10);
+        return response()->json($authors);
     }
 
     /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
+     * Store a newly created author.
      */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'bio'  => 'nullable|string',
+        ]);
+
+        $author = Author::create($validated);
+
+        return response()->json($author, 201);
     }
 
     /**
-     * Display the specified resource.
+     * Display a single author with their books.
      */
-    public function show(Author $author)
+    public function show($id)
     {
-        //
+        $author = Author::with('books')->findOrFail($id);
+        return response()->json($author);
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Update an existing author.
      */
-    public function edit(Author $author)
+    public function update(Request $request, $id)
     {
-        //
+        $author = Author::findOrFail($id);
+
+        $validated = $request->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'bio'  => 'nullable|string',
+        ]);
+
+        $author->update($validated);
+
+        return response()->json($author);
     }
 
     /**
-     * Update the specified resource in storage.
+     * Delete an author.
      */
-    public function update(Request $request, Author $author)
+    public function destroy($id)
     {
-        //
-    }
+        $author = Author::findOrFail($id);
+        $author->delete();
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Author $author)
-    {
-        //
+        return response()->json(['message' => 'Author deleted successfully']);
     }
 }
