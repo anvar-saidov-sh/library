@@ -16,10 +16,13 @@ class BookController extends Controller
             ->orderBy('title')
             ->paginate(10);
 
-        return response()->json($books);
+        if ($request->wantsJson()) {
+            return response()->json($books);
+        }
+
+        return view('books.index', compact('books'));
     }
 
-    // POST /api/books
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -35,8 +38,6 @@ class BookController extends Controller
 
         return response()->json($book, 201);
     }
-
-    // GET /api/books/{id}
     public function show($id)
     {
         $book = Book::with('author', 'borrowings')->findOrFail($id);
@@ -44,7 +45,6 @@ class BookController extends Controller
         return response()->json($book);
     }
 
-    // PUT /api/books/{id}
     public function update(Request $request, $id)
     {
         $book = Book::findOrFail($id);
@@ -63,7 +63,6 @@ class BookController extends Controller
         return response()->json($book);
     }
 
-    // DELETE /api/books/{id}
     public function destroy($id)
     {
         $book = Book::findOrFail($id);
