@@ -20,6 +20,6 @@ Route::middleware('auth')->group(function () {
 });
 Route::middleware(['auth'])->group(function () {
     Route::resource('books', BookController::class);
+    Route::resource('authors', AuthorController::class);
 });
-Route::resource('authors', AuthorController::class);
 require __DIR__.'/auth.php';
