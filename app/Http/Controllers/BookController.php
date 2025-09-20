@@ -36,14 +36,25 @@ class BookController extends Controller
 
         $book = Book::create($validated);
 
-        return response()->json($book, 201);
+        if ($request->wantsJson()) {
+            return response()->json($book, 201);
+        }
+
+        return redirect()->route('books.index')
+            ->with('success', 'Book created successfully.');
     }
-    public function show($id)
+
+    public function show(Request $request, $id)
     {
         $book = Book::with('author', 'borrowings')->findOrFail($id);
 
-        return response()->json($book);
+        if ($request->wantsJson()) {
+            return response()->json($book);
+        }
+
+        return view('books.show', compact('book'));
     }
+
 
     public function update(Request $request, $id)
     {
@@ -60,14 +71,25 @@ class BookController extends Controller
 
         $book->update($validated);
 
-        return response()->json($book);
+        if ($request->wantsJson()) {
+            return response()->json($book);
+        }
+
+        return redirect()->route('books.index')
+            ->with('success', 'Book updated successfully.');
     }
 
-    public function destroy($id)
+
+    public function destroy(Request $request, $id)
     {
         $book = Book::findOrFail($id);
         $book->delete();
 
-        return response()->json(null, 204);
+        if ($request->wantsJson()) {
+            return response()->json(null, 204);
+        }
+
+        return redirect()->route('books.index')
+            ->with('success', 'Book deleted successfully.');
     }
 }
