@@ -25,5 +25,3 @@ Route::apiResource('books', BookController::class);
 Route::apiResource('borrowings', BorrowingController::class);
 Route::post('/borrow/{book}', [BorrowingController::class, 'borrow']);
 Route::post('/return/{book}', [BorrowingController::class, 'returnBook']);
-
-Route::apiResource('books', BookController::class);
