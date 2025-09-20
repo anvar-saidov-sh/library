@@ -28,7 +28,6 @@ class AuthorController extends Controller
         ]);
 
         $author = Author::create($validated);
-
         return response()->json($author, 201);
     }
 

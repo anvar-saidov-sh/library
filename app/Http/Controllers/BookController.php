@@ -22,7 +22,11 @@ class BookController extends Controller
 
         return view('books.index', compact('books'));
     }
-
+    public function create()
+    {
+        $authors = \App\Models\Author::all();
+        return view('books.create', compact('authors'));
+    }
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -35,7 +39,6 @@ class BookController extends Controller
         ]);
 
         $book = Book::create($validated);
-
         if ($request->wantsJson()) {
             return response()->json($book, 201);
         }
