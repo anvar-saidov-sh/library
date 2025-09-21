@@ -1,60 +1,45 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1>Books</h1>
+<div class="container">
+    <h1>Authors</h1>
+    <a href="{{ route('authors.create') }}" class="btn btn-primary mb-3">Add Author</a>
 
-        @if (session('success'))
-            <div class="alert alert-success"
-                style="margin: 10px 0; padding: 10px; border: 1px solid #c3e6cb; background: #d4edda; color: #155724;">
-                {{ session('success') }}
-            </div>
-        @endif
+    @if(session('success'))
+        <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
 
-        @if (session('error'))
-            <div class="alert alert-danger"
-                style="margin: 10px 0; padding: 10px; border: 1px solid #f5c6cb; background: #f8d7da; color: #721c24;">
-                {{ session('error') }}
-            </div>
-        @endif
-
-        @if ($errors->any())
-            <div class="alert alert-danger"
-                style="margin: 10px 0; padding: 10px; border: 1px solid #f5c6cb; background: #f8d7da; color: #721c24;">
-                <ul style="margin: 0; padding-left: 20px;">
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
-
-        <form method="GET" action="{{ route('authors.index') }}">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search authors...">
-            <button type="submit">Search</button>
-        </form>
-
-        <a href="{{ route('authors.create') }}">+ Add New Author</a>
-
-        <table>
-            <tbody>
-                @foreach ($authors as $author)
-                    <tr>
-                        <td>{{ $author->name }}</td>
-                        <td>
-                            <a href="{{ route('authors.show', $author) }}">View</a>
-                            <a href="{{ route('authors.edit', $author) }}">Edit</a>
-                            <form action="{{ route('authors.destroy', $author) }}" method="POST" style="display:inline;">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" onclick="return confirm('Delete this author?')">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                @endforeach
-            </tbody>
-        </table>
-
-        {{ $authors->links() }}
-    </div>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Country</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @forelse($authors as $author)
+                <tr>
+                    <td>{{ $author->id }}</td>
+                    <td>{{ $author->name }}</td>
+                    <td>{{ $author->country }}</td>
+                    <td>
+                        <a href="{{ route('authors.edit', $author->id) }}" class="btn btn-warning btn-sm">Edit</a>
+                        <form action="{{ route('authors.destroy', $author->id) }}" method="POST" class="d-inline">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-danger btn-sm"
+                                onclick="return confirm('Are you sure you want to delete this author?')">
+                                Delete
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+            @empty
+                <tr><td colspan="4">No authors found.</td></tr>
+            @endforelse
+        </tbody>
+    </table>
+</div>
 @endsection

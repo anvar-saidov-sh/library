@@ -1,29 +1,23 @@
 @extends('layouts.app')
 
 @section('content')
-    <div class="container">
-        <h1>Add New Book</h1>
+<div class="container">
+    <h1>Add Author</h1>
 
-        @if ($errors->any())
-            <div>
-                <strong>Whoops!</strong> There were some problems with your input.<br><br>
-                <ul>
-                    @foreach ($errors->all() as $error)
-                        <li>{{ $error }}</li>
-                    @endforeach
-                </ul>
-            </div>
-        @endif
+    <form action="{{ route('authors.store') }}" method="POST">
+        @csrf
+        <div class="mb-3">
+            <label for="name" class="form-label">Author Name</label>
+            <input type="text" name="name" id="name" class="form-control" required>
+        </div>
 
-        <form action="{{ route('authors.store') }}" method="POST">
-            @csrf
+        <div class="mb-3">
+            <label for="country" class="form-label">Country</label>
+            <input type="text" name="country" id="country" class="form-control">
+        </div>
 
-            <div>
-                <label for="author">Author</label>
-                <input type="text" name="author" id="author" value="{{ old('author', $author->name) }}" required>
-            </div>
-            <button type="submit">Save author</button>
-            <a href="{{ route('authors.index') }}">Cancel</a>
-        </form>
-    </div>
+        <button type="submit" class="btn btn-success">Save Author</button>
+        <a href="{{ route('authors.index') }}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
 @endsection
