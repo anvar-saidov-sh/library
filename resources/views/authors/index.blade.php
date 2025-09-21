@@ -30,27 +30,17 @@
         @endif
 
         <form method="GET" action="{{ route('authors.index') }}">
-            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search books...">
+            <input type="text" name="search" value="{{ request('search') }}" placeholder="Search authors...">
             <button type="submit">Search</button>
         </form>
 
         <a href="{{ route('authors.create') }}">+ Add New Author</a>
 
         <table>
-            <thead>
-                <tr>
-                    <th>Title</th>
-                    <th>Author</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                </tr>
-            </thead>
             <tbody>
                 @foreach ($authors as $author)
                     <tr>
-                        <td>{{ $author->title }}</td>
                         <td>{{ $author->name }}</td>
-                        <td>{{ $author->status }}</td>
                         <td>
                             <a href="{{ route('authors.show', $author) }}">View</a>
                             <a href="{{ route('authors.edit', $author) }}">Edit</a>
