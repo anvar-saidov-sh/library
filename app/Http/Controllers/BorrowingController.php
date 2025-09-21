@@ -10,29 +10,50 @@ use Illuminate\Support\Carbon;
 class BorrowingController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a listing of the borrowings.
      */
-    // GET /api/borrowings
-    public function index()
+    public function index(Request $request)
     {
         $borrowings = Borrowing::with(['book', 'user'])
             ->orderByDesc('borrowed_at')
             ->paginate(10);
 
-        return response()->json($borrowings);
+        if ($request->wantsJson()) {
+            return response()->json($borrowings);
+        }
+
+        return view('borrowings.index', compact('borrowings'));
     }
 
-    // POST /api/borrow/{book}
+    /**
+     * Show a single borrowing.
+     */
+    public function show(Request $request, $id)
+    {
+        $borrowing = Borrowing::with(['book', 'user'])->findOrFail($id);
+
+        if ($request->wantsJson()) {
+            return response()->json($borrowing);
+        }
+
+        return view('borrowings.show', compact('borrowing'));
+    }
+
+    /**
+     * Borrow a book.
+     */
     public function borrow(Request $request, Book $book)
     {
         if (!$book->isAvailable()) {
-            return response()->json(['message' => 'Book not available'], 400);
+            return $request->wantsJson()
+                ? response()->json(['message' => 'Book not available'], 400)
+                : back()->withErrors('Book not available.');
         }
 
         $validated = $request->validate([
-            'user_id'   => 'required|exists:users,id',
-            'days'      => 'nullable|integer|min:1|max:60', // default 14 days
-            'notes'     => 'nullable|string|max:255',
+            'user_id' => 'required|exists:users,id',
+            'days'    => 'nullable|integer|min:1|max:60',
+            'notes'   => 'nullable|string|max:255',
         ]);
 
         $borrowing = Borrowing::create([
@@ -43,13 +64,19 @@ class BorrowingController extends Controller
             'notes'      => $validated['notes'] ?? null,
         ]);
 
-        // update book status
         $book->update(['status' => 'borrowed']);
 
-        return response()->json($borrowing, 201);
+        if ($request->wantsJson()) {
+            return response()->json($borrowing, 201);
+        }
+
+        return redirect()->route('borrowings.index')
+            ->with('success', 'Book borrowed successfully.');
     }
 
-    // POST /api/return/{book}
+    /**
+     * Return a borrowed book.
+     */
     public function returnBook(Request $request, Book $book)
     {
         $borrowing = Borrowing::where('book_id', $book->id)
@@ -58,36 +85,39 @@ class BorrowingController extends Controller
             ->first();
 
         if (!$borrowing) {
-            return response()->json(['message' => 'This book is not currently borrowed'], 400);
+            return $request->wantsJson()
+                ? response()->json(['message' => 'This book is not currently borrowed'], 400)
+                : back()->withErrors('This book is not currently borrowed.');
         }
 
         $borrowing->update([
             'returned_at' => Carbon::now(),
         ]);
 
-        // update book status
         $book->update(['status' => 'available']);
-
-        // increase read count
         $book->increment('read_count');
 
-        return response()->json(['message' => 'Book returned successfully']);
+        if ($request->wantsJson()) {
+            return response()->json(['message' => 'Book returned successfully']);
+        }
+
+        return redirect()->route('borrowings.index')
+            ->with('success', 'Book returned successfully.');
     }
 
-    // GET /api/borrowings/{id}
-    public function show($id)
-    {
-        $borrowing = Borrowing::with(['book', 'user'])->findOrFail($id);
-
-        return response()->json($borrowing);
-    }
-
-    // DELETE /api/borrowings/{id}
-    public function destroy($id)
+    /**
+     * Delete a borrowing record.
+     */
+    public function destroy(Request $request, $id)
     {
         $borrowing = Borrowing::findOrFail($id);
         $borrowing->delete();
 
-        return response()->json(null, 204);
+        if ($request->wantsJson()) {
+            return response()->json(null, 204);
+        }
+
+        return redirect()->route('borrowings.index')
+            ->with('success', 'Borrowing deleted successfully.');
     }
 }

@@ -7,9 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
 
 /**
+ * @property int $id
+ * @property int $user_id
+ * @property int $book_id
+ * @property string|null $notes
  * @property Carbon|null $borrowed_at
  * @property Carbon|null $due_date
  * @property Carbon|null $returned_at
+ *
+ * @property-read \App\Models\User $user
+ * @property-read \App\Models\Book $book
  */
 class Borrowing extends Model
 {
@@ -26,13 +33,13 @@ class Borrowing extends Model
 
     protected $casts = [
         'borrowed_at' => 'datetime',
-        'due_date' => 'date',
+        'due_date'    => 'datetime',
         'returned_at' => 'datetime',
     ];
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class);
+        return $this->belongsTo(User::class);
     }
 
     public function book()
@@ -42,18 +49,8 @@ class Borrowing extends Model
 
     public function isOverdue(): bool
     {
-        if ($this->returned_at !== null) {
-            return false;
-        }
-
-        if (!$this->due_date) {
-            return false;
-        }
-
-        $due = $this->due_date instanceof Carbon
-            ? $this->due_date
-            : Carbon::parse($this->due_date);
-
-        return $due->isPast();
+        return $this->returned_at === null
+            && $this->due_date !== null
+            && Carbon::parse($this->due_date)->isPast();
     }
 }
