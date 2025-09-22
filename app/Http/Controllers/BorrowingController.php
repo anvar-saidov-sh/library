@@ -9,9 +9,6 @@ use Illuminate\Support\Carbon;
 
 class BorrowingController extends Controller
 {
-    /**
-     * Display a listing of the borrowings.
-     */
     public function index(Request $request)
     {
         $borrowings = Borrowing::with(['book', 'user'])
@@ -25,9 +22,6 @@ class BorrowingController extends Controller
         return view('borrowings.index', compact('borrowings'));
     }
 
-    /**
-     * Show a single borrowing.
-     */
     public function show(Request $request, $id)
     {
         $borrowing = Borrowing::with(['book', 'user'])->findOrFail($id);
@@ -39,9 +33,6 @@ class BorrowingController extends Controller
         return view('borrowings.show', compact('borrowing'));
     }
 
-    /**
-     * Borrow a book.
-     */
     public function borrow(Request $request, Book $book)
     {
         if (!$book->isAvailable()) {
@@ -74,9 +65,6 @@ class BorrowingController extends Controller
             ->with('success', 'Book borrowed successfully.');
     }
 
-    /**
-     * Return a borrowed book.
-     */
     public function returnBook(Request $request, Book $book)
     {
         $borrowing = Borrowing::where('book_id', $book->id)
@@ -105,9 +93,6 @@ class BorrowingController extends Controller
             ->with('success', 'Book returned successfully.');
     }
 
-    /**
-     * Delete a borrowing record.
-     */
     public function destroy(Request $request, $id)
     {
         $borrowing = Borrowing::findOrFail($id);
